@@ -15,6 +15,7 @@
 | `GET` | `/employees/{id}` | No | [Get Employee](#get-employeesid) |
 | `POST` | `/employees` | No | [Create Employee](#post-employees) |
 | `POST` | `/ingredients` | No | [Create Ingredient](#post-ingredients) |
+| `GET` | `/vendors` | No | [List Vendors](#get-vendors) |
 | `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
 | `GET` | `/promotions` | No | [List Promotions](#get-promotions) |
 | `POST` | `/promotions` | No | [Create Promotion](#post-promotions) |
@@ -206,6 +207,22 @@ Creates a new ingredient and links it to an existing vendor.
 | `404` | The vendor was not found. | `application/json` `{ "detail": string }` |
 | `409` | An ingredient with that name and vendor ID already exists. | `application/json` `{ "detail": string }` |
 | `422` | The provided IngredientCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `GET` /vendors
+
+**List Vendors**
+
+Retrieve a list of all vendors.
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | A list of all vendors | `application/json` `array of` [`VendorRead`](#vendorread) |
 
 [Back to Summary](#summary)
 

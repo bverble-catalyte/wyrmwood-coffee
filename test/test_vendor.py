@@ -2,6 +2,10 @@ import pytest
 
 from wyrmwood_coffee.models.vendor import Vendor, VendorRead
 
+# ==========================================
+# FIXTURES
+# ==========================================
+
 
 @pytest.fixture
 def vendor_single_contact_kwargs():
@@ -96,6 +100,49 @@ def vendor_inactive_kwargs(vendor_single_contact_kwargs):
     return vendor_single_contact_kwargs | {"active": False}
 
 
+# ==========================================
+# LIST OPERATIONS
+# ==========================================
+
+# --------------------
+# Successful Responses
+# --------------------
+
+
+def test_list_vendors_with_multiple_vendors_should_return_all_vendors(
+    client, vendor_single_contact_kwargs
+):
+
+    client.post("/vendors", json=vendor_single_contact_kwargs)
+
+    second_vendor = dict(vendor_single_contact_kwargs)
+    second_vendor["name"] = "Second Vendor LLC"
+    client.post("/vendors", json=second_vendor)
+
+    response = client.get("/vendors")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) >= 2
+
+
+def test_list_vendors_with_no_vendors_should_return_empty_list(client):
+    response = client.get("/vendors")
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+# ==========================================
+# CREATE OPERATIONS
+# ==========================================
+
+# --------------------
+# Successful Responses
+# --------------------
+
+
 def test_create_vendor_with_one_contact_should_return_vendor(
     client, vendor_single_contact_kwargs
 ):
@@ -134,12 +181,17 @@ def test_create_vendor_with_multiple_contacts_should_return_vendor(
     assert vendor.model_dump(mode="json") == expected
 
 
-def test_create_vendor_should_persist_to_db(
-    db_session, client, vendor_single_contact_kwargs
+def test_create_vendor_with_active_false_should_return_inactive_vendor(
+    client, vendor_inactive_kwargs
 ):
-    response = client.post("/vendors", json=vendor_single_contact_kwargs)
-    vendor = db_session.get(Vendor, response.json()["id"])
-    assert vendor is not None
+    response = client.post("/vendors", json=vendor_inactive_kwargs)
+    assert response.status_code == 201
+    assert response.json()["active"] is False
+
+
+# --------------------
+# Error Responses
+# --------------------
 
 
 def test_create_vendor_with_invalid_name_should_return_422(
@@ -205,9 +257,14 @@ def test_create_vendor_with_whitespace_contact_name_should_return_422(
     assert response.status_code == 422
 
 
-def test_create_vendor_with_active_false_should_return_inactive_vendor(
-    client, vendor_inactive_kwargs
+# --------------------
+# Side-Effect Tests
+# --------------------
+
+
+def test_create_vendor_should_persist_to_db(
+    db_session, client, vendor_single_contact_kwargs
 ):
-    response = client.post("/vendors", json=vendor_inactive_kwargs)
-    assert response.status_code == 201
-    assert response.json()["active"] is False
+    response = client.post("/vendors", json=vendor_single_contact_kwargs)
+    vendor = db_session.get(Vendor, response.json()["id"])
+    assert vendor is not None

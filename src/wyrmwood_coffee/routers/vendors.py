@@ -11,6 +11,20 @@ from wyrmwood_coffee.models.vendor import (
 router = APIRouter()
 
 
+@router.get(
+    "",
+    status_code=status.HTTP_200_OK,
+    response_model=list[VendorRead],
+    response_description="A list of all vendors",
+)
+def list_vendors(session: DbSession) -> list[VendorRead]:
+    """
+    Retrieve a list of all vendors.
+    """
+    vendors = session.query(Vendor).all()
+    return [VendorRead.model_validate(v, from_attributes=True) for v in vendors]
+
+
 @router.post(
     "",
     status_code=status.HTTP_201_CREATED,

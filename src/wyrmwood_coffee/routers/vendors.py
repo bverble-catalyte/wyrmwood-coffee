@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, status
 
 from wyrmwood_coffee.dependencies import DbSession
@@ -7,6 +9,8 @@ from wyrmwood_coffee.models.vendor import (
     VendorCreate,
     VendorRead,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -27,6 +31,7 @@ def create_vendor(session: DbSession, payload: VendorCreate):
     Returns the created vendor, including generated IDs for the vendor
     and each vendor contact.
     """
+    logger.info("Create vendor called.")
     new_vendor = Vendor(
         name=payload.name,
         active=payload.active,

@@ -1,3 +1,4 @@
+import logging
 import subprocess
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -13,6 +14,11 @@ from wyrmwood_coffee.routers import (
     vendors,
 )
 from wyrmwood_coffee.routers.promotions import router as promotions_router
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
 
 
 @asynccontextmanager
